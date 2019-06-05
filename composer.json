@@ -1,12 +1,12 @@
 {
-    "name": "hardevine/shoppingcart",
+    "name": "digital-bird/shoppingcart",
     "description": "Laravel Shoppingcart",
     "keywords": ["laravel", "shoppingcart"],
     "license": "MIT",
     "authors": [
         {
-            "name": "Rob Gloudemans",
-            "email": "info@robgloudemans.nl"
+            "name": "Matt Komarnicki",
+            "email": "matt@digitalbird.com.au"
         }
     ],
     "require": {
