@@ -1,8 +1,4 @@
 ## LaravelShoppingcart
-[![Build Status](https://travis-ci.org/hardevine/LaravelShoppingcart.png?branch=master)](https://travis-ci.org/hardevine/LaravelShoppingcart)
-[![Total Downloads](https://poser.pugx.org/hardevine/shoppingcart/downloads.png)](https://packagist.org/packages/hardevine/shoppingcart)
-[![Latest Stable Version](https://poser.pugx.org/hardevine/shoppingcart/v/stable)](https://packagist.org/packages/hardevine/shoppingcart)
-[![Latest Unstable Version](https://poser.pugx.org/hardevine/shoppingcart/v/unstable)](https://packagist.org/packages/hardevine/shoppingcart)
 [![License](https://poser.pugx.org/gloudemans/shoppingcart/license)](https://packagist.org/packages/gloudemans/shoppingcart)
 
 A simple shoppingcart implementation for Laravel.
@@ -13,7 +9,7 @@ Install the package through [Composer](http://getcomposer.org/).
 
 Run the Composer require command from the Terminal:
 
-    composer require hardevine/shoppingcart
+    composer require digital-bird/shoppingcart
     
 If you're using Laravel 5.5, this is all there is to do. 
 

@@ -911,7 +911,9 @@ class CartTest extends TestCase
 
         $user = Mockery::mock(Authenticatable::class);
 
-        event(new Logout($user));
+        $guard = $this->app->make('auth');
+
+        event(new Logout($guard, $user));
     }
 
     /**
