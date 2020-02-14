@@ -108,9 +108,9 @@ class Cart
 
         $content->put($cartItem->rowId, $cartItem);
 
-        $this->events->dispatch('cart.added', $cartItem);
-
         $this->session->put($this->instance, $content);
+
+        $this->events->dispatch('cart.added', $cartItem);
 
         return $cartItem;
     }
@@ -137,24 +137,28 @@ class Cart
         $content = $this->getContent();
 
         if ($rowId !== $cartItem->rowId) {
-            $content->pull($rowId);
-
             if ($content->has($cartItem->rowId)) {
                 $existingCartItem = $this->get($cartItem->rowId);
                 $cartItem->setQuantity($existingCartItem->qty + $cartItem->qty);
             }
+
+            $content = $content->mapWithKeys(function ($val, $key) use ($rowId, $cartItem) {
+                if ($key === $rowId) {
+                    return [ $cartItem->rowId => $cartItem ];
+                }
+
+                return [ $key => $val ];
+            });
         }
 
         if ($cartItem->qty <= 0) {
             $this->remove($cartItem->rowId);
             return;
-        } else {
-            $content->put($cartItem->rowId, $cartItem);
         }
 
-        $this->events->dispatch('cart.updated', $cartItem);
-
         $this->session->put($this->instance, $content);
+
+        $this->events->dispatch('cart.updated', $cartItem);
 
         return $cartItem;
     }
@@ -173,9 +177,9 @@ class Cart
 
         $content->pull($cartItem->rowId);
 
-        $this->events->dispatch('cart.removed', $cartItem);
-
         $this->session->put($this->instance, $content);
+
+        $this->events->dispatch('cart.removed', $cartItem);
     }
 
     /**
@@ -356,9 +360,9 @@ class Cart
 
 
         $this->getConnection()
-             ->table($this->getTableName())
-             ->where('identifier', $identifier)
-             ->delete();
+            ->table($this->getTableName())
+            ->where('identifier', $identifier)
+            ->delete();
 
 
         $this->getConnection()->table($this->getTableName())->insert([
@@ -415,9 +419,9 @@ class Cart
      */
     protected function deleteStoredCart($identifier) {
         $this->getConnection()
-             ->table($this->getTableName())
-             ->where('identifier', $identifier)
-             ->delete();
+            ->table($this->getTableName())
+            ->where('identifier', $identifier)
+            ->delete();
     }
 
 
