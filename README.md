@@ -47,16 +47,18 @@ The shoppingcart gives you the following methods to use:
 
 Adding an item to the cart is really simple, you just use the `add()` method, which accepts a variety of parameters.
 
-In its most basic form you can specify the id, name, quantity, price of the product you'd like to add to the cart.
+In its most basic form you can specify the id, name, quantity, price, and tax rate of the product you'd like to add to the cart.
 
 ```php
-Cart::add('293ad', 'Product 1', 1, 9.99);
+Cart::add('293ad', 'Product 1', 1, 9.99, 10);
 ```
 
-As an optional fifth parameter you can pass it options, so you can add multiple items with the same id, but with (for instance) a different size.
+As an optional sixth parameter you can pass it options, so you can add multiple items with the same id, but with (for instance) a different size.
+
+The fifth parameter is the tax rate. Eg 10 for 10%. 
 
 ```php
-Cart::add('293ad', 'Product 1', 1, 9.99, ['size' => 'large']);
+Cart::add('293ad', 'Product 1', 1, 9.99, 10, ['size' => 'large']);
 ```
 
 **The `add()` method will return an CartItem instance of the item you just added to the cart.**
@@ -64,7 +66,7 @@ Cart::add('293ad', 'Product 1', 1, 9.99, ['size' => 'large']);
 Maybe you prefer to add the item using an array? As long as the array contains the required keys, you can pass it to the method. The options key is optional.
 
 ```php
-Cart::add(['id' => '293ad', 'name' => 'Product 1', 'qty' => 1, 'price' => 9.99, 'options' => ['size' => 'large']]);
+Cart::add(['id' => '293ad', 'name' => 'Product 1', 'qty' => 1, 'price' => 9.99, 'taxRate' => 10, 'options' => ['size' => 'large']]);
 ```
 
 New in version 2 of the package is the possibility to work with the [Buyable](#buyable) interface. The way this works is that you have a model implement the `Buyable` interface, which will make you implement a few methods so the package knows how to get the id, name and price from your model. 
@@ -91,8 +93,8 @@ You can just pass the `add()` method an array of arrays, or an array of Buyables
 
 ```php
 Cart::add([
-  ['id' => '293ad', 'name' => 'Product 1', 'qty' => 1, 'price' => 10.00],
-  ['id' => '4832k', 'name' => 'Product 2', 'qty' => 1, 'price' => 10.00, 'options' => ['size' => 'large']]
+  ['id' => '293ad', 'name' => 'Product 1', 'qty' => 1, 'price' => 10.00, 'taxRate' => 10],
+  ['id' => '4832k', 'name' => 'Product 2', 'qty' => 1, 'price' => 10.00, 'taxRate' => 10, 'options' => ['size' => 'large']]
 ]);
 
 Cart::add([$product1, $product2]);
