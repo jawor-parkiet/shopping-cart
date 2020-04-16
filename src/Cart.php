@@ -111,8 +111,10 @@ class Cart
 		$this->session->put($this->instance, $content);
 
 		$this->events->dispatch('cart.added', [
-			'cart' => $this,
-			'cartItem' => $cartItem,
+			[
+				'cart' => $this,
+				'cartItem' => $cartItem,
+			]
 		]);
 
 		return $cartItem;
@@ -162,8 +164,10 @@ class Cart
 		$this->session->put($this->instance, $content);
 
 		$this->events->dispatch('cart.updated', [
-			'cart' => $this,
-			'cartItem' => $cartItem,
+			[
+				'cart' => $this,
+				'cartItem' => $cartItem,
+			]
 		]);
 
 		return $cartItem;
@@ -186,8 +190,10 @@ class Cart
 		$this->session->put($this->instance, $content);
 
 		$this->events->dispatch('cart.removed', [
-			'cart' => $this,
-			'cartItem' => $cartItem,
+			[
+				'cart' => $this,
+				'cartItem' => $cartItem,
+			]
 		]);
 	}
 
@@ -436,7 +442,7 @@ class Cart
 
 		$this->instance($currentInstance);
 	}
-	
+
 	/**
 	 * Deletes the stored cart with given identifier
 	 *
