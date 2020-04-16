@@ -110,7 +110,10 @@ class Cart
 
 		$this->session->put($this->instance, $content);
 
-		$this->events->dispatch('cart.added', $cartItem);
+		$this->events->dispatch('cart.added', [
+			'cart' => $this,
+			'cartItem' => $cartItem,
+		]);
 
 		return $cartItem;
 	}
@@ -158,7 +161,10 @@ class Cart
 
 		$this->session->put($this->instance, $content);
 
-		$this->events->dispatch('cart.updated', $cartItem);
+		$this->events->dispatch('cart.updated', [
+			'cart' => $this,
+			'cartItem' => $cartItem,
+		]);
 
 		return $cartItem;
 	}
@@ -179,7 +185,10 @@ class Cart
 
 		$this->session->put($this->instance, $content);
 
-		$this->events->dispatch('cart.removed', $cartItem);
+		$this->events->dispatch('cart.removed', [
+			'cart' => $this,
+			'cartItem' => $cartItem,
+		]);
 	}
 
 	/**
@@ -391,7 +400,7 @@ class Cart
 			'created_at'=> new \DateTime()
 		]);
 
-		$this->events->dispatch('cart.stored');
+		$this->events->dispatch('cart.stored', $this);
 	}
 
 	/**
@@ -421,16 +430,13 @@ class Cart
 			$content->put($cartItem->rowId, $cartItem);
 		}
 
-		$this->events->dispatch('cart.restored');
+		$this->events->dispatch('cart.restored', $this);
 
 		$this->session->put($this->instance, $content);
 
 		$this->instance($currentInstance);
-
 	}
-
-
-
+	
 	/**
 	 * Deletes the stored cart with given identifier
 	 *
@@ -442,8 +448,6 @@ class Cart
 			->where('identifier', $identifier)
 			->delete();
 	}
-
-
 
 	/**
 	 * Magic method to make accessing the total, tax and subtotal properties possible.
