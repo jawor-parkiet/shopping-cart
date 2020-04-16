@@ -112,7 +112,7 @@ class Cart
 
 		$this->events->dispatch('cart.added', [
 			[
-				'cartInstance' => $this->instance,
+				'cartInstance' => $this->currentInstance(),
 				'cartItem' => $cartItem,
 			]
 		]);
@@ -165,7 +165,7 @@ class Cart
 
 		$this->events->dispatch('cart.updated', [
 			[
-				'cartInstance' => $this->instance,
+				'cartInstance' => $this->currentInstance(),
 				'cartItem' => $cartItem,
 			]
 		]);
@@ -191,7 +191,7 @@ class Cart
 
 		$this->events->dispatch('cart.removed', [
 			[
-				'cartInstance' => $this->instance,
+				'cartInstance' => $this->currentInstance(),
 				'cartItem' => $cartItem,
 			]
 		]);
@@ -406,7 +406,7 @@ class Cart
 			'created_at'=> new \DateTime()
 		]);
 
-		$this->events->dispatch('cart.stored', $this->instance);
+		$this->events->dispatch('cart.stored', $this->currentInstance());
 	}
 
 	/**
@@ -436,7 +436,7 @@ class Cart
 			$content->put($cartItem->rowId, $cartItem);
 		}
 
-		$this->events->dispatch('cart.restored', $this->instance);
+		$this->events->dispatch('cart.restored', $this->currentInstance());
 
 		$this->session->put($this->instance, $content);
 
