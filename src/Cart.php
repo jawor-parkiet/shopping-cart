@@ -478,29 +478,29 @@ class Cart
      */
     public function getFee($name)
     {
-        return $this->fees->get($name, new CartFee(null, false));
+        return $this->fees->get($name, new CartFee(null, null));
     }
 
     /**
      * Allows to charge for additional fees that may or may not be taxable
      * ex - service fee , delivery fee, tips.
      *
+     * Because it uses ->put, the name must be unique otherwise will be overwritten.
+     *
      * @param            $name
      * @param            $amount
-     * @param bool|false $taxable
+     * @param            $taxRate
      * @param array      $options
      */
-    public function addFee($name, $amount, $taxable = false, array $options = [])
+    public function addFee($name, $amount, $taxRate = null, array $options = [])
     {
-        $this->fees->set($name, new CartFee($amount, $taxable, $options));
+        $this->fees->put($name, new CartFee($amount, $taxRate, $options));
 
         $this->session->put($this->instance, $this->toArray());
     }
 
     /**
      * Removes a fee from the fee array.
-     *
-     * @todo test to see if i need to restore this
      *
      * @param $name
      */
