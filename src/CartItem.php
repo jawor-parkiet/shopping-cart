@@ -2,12 +2,15 @@
 
 namespace Gloudemans\Shoppingcart;
 
+use Gloudemans\Shoppingcart\Traits\CartHelper;
 use Illuminate\Contracts\Support\Arrayable;
 use Gloudemans\Shoppingcart\Contracts\Buyable;
 use Illuminate\Contracts\Support\Jsonable;
 
 class CartItem implements Arrayable, Jsonable
 {
+	use CartHelper;
+
 	/**
 	 * The rowID of the cart item.
 	 *
@@ -415,31 +418,5 @@ class CartItem implements Arrayable, Jsonable
 	public function toJson($options = 0)
 	{
 		return json_encode($this->toArray(), $options);
-	}
-
-	/**
-	 * Get the formatted number.
-	 *
-	 * @param float  $value
-	 * @param int    $decimals
-	 * @param string $decimalPoint
-	 * @param string $thousandSeperator
-	 * @return string
-	 */
-	private function numberFormat($value, $decimals = null, $decimalPoint = null, $thousandSeperator = null)
-	{
-		if (is_null($decimals)){
-			$decimals = is_null(config('cart.format.decimals')) ? 2 : config('cart.format.decimals');
-		}
-
-		if (is_null($decimalPoint)){
-			$decimalPoint = is_null(config('cart.format.decimal_point')) ? '.' : config('cart.format.decimal_point');
-		}
-
-		if (is_null($thousandSeperator)){
-			$thousandSeperator = is_null(config('cart.format.thousand_seperator')) ? ',' : config('cart.format.thousand_seperator');
-		}
-
-		return number_format($value, $decimals, $decimalPoint, $thousandSeperator);
 	}
 }

@@ -4,7 +4,7 @@ namespace Gloudemans\Shoppingcart;
 
 use Illuminate\Support\Collection;
 
-class CartItemOptions extends Collection
+class CartFeeOptions extends Collection
 {
     /**
      * Get the option by the given key.

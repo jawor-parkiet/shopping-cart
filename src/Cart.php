@@ -3,6 +3,8 @@
 namespace Gloudemans\Shoppingcart;
 
 use Closure;
+use DateTime;
+use Gloudemans\Shoppingcart\Traits\CartHelper;
 use Illuminate\Support\Collection;
 use Illuminate\Session\SessionManager;
 use Illuminate\Database\DatabaseManager;
@@ -10,11 +12,15 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Gloudemans\Shoppingcart\Contracts\Buyable;
 use Gloudemans\Shoppingcart\Exceptions\UnknownModelException;
 use Gloudemans\Shoppingcart\Exceptions\InvalidRowIDException;
-use Gloudemans\Shoppingcart\Exceptions\CartAlreadyStoredException;
 
 class Cart
 {
+    use CartHelper;
+
 	const DEFAULT_INSTANCE = 'default';
+
+	public $items;
+	public $fees;
 
 	/**
 	 * Instance of the session manager.
@@ -45,6 +51,8 @@ class Cart
 	 */
 	public function __construct(SessionManager $session, Dispatcher $events)
 	{
+	    $this->items = new Collection;
+	    $this->fees = new Collection;
 		$this->session = $session;
 		$this->events = $events;
 
@@ -108,7 +116,7 @@ class Cart
 
 		$content->put($cartItem->rowId, $cartItem);
 
-		$this->session->put($this->instance, $content);
+		$this->session->put($this->instance, $this->toArray());
 
 		$this->events->dispatch('cart.added', [
 			[
@@ -161,7 +169,7 @@ class Cart
 			return;
 		}
 
-		$this->session->put($this->instance, $content);
+		$this->session->put($this->instance, $this->toArray());
 
 		$this->events->dispatch('cart.updated', [
 			[
@@ -187,7 +195,7 @@ class Cart
 
 		$content->pull($cartItem->rowId);
 
-		$this->session->put($this->instance, $content);
+		$this->session->put($this->instance, $this->toArray());
 
 		$this->events->dispatch('cart.removed', [
 			[
@@ -207,8 +215,9 @@ class Cart
 	{
 		$content = $this->getContent();
 
-		if ( ! $content->has($rowId))
+		if ($content->has($rowId) === false) {
 			throw new InvalidRowIDException("The cart does not contain rowId {$rowId}.");
+        }
 
 		return $content->get($rowId);
 	}
@@ -230,11 +239,7 @@ class Cart
 	 */
 	public function content()
 	{
-		if (is_null($this->session->get($this->instance))) {
-			return new Collection([]);
-		}
-
-		return $this->session->get($this->instance);
+		return $this->getContent();
 	}
 
 	/**
@@ -328,7 +333,7 @@ class Cart
 	/**
 	 * Search the cart content for a cart item matching the given search closure.
 	 *
-	 * @param \Closure $search
+	 * @param Closure $search
 	 * @return \Illuminate\Support\Collection
 	 */
 	public function search(Closure $search)
@@ -347,7 +352,10 @@ class Cart
 	 */
 	public function associate($rowId, $model)
 	{
-		if(is_string($model) && ! class_exists($model)) {
+		if (
+		    is_string($model) === true &&
+            class_exists($model) === false
+        ) {
 			throw new UnknownModelException("The supplied model {$model} does not exist.");
 		}
 
@@ -359,7 +367,7 @@ class Cart
 
 		$content->put($cartItem->rowId, $cartItem);
 
-		$this->session->put($this->instance, $content);
+		$this->session->put($this->instance, $this->toArray());
 	}
 
 	/**
@@ -379,7 +387,7 @@ class Cart
 
 		$content->put($cartItem->rowId, $cartItem);
 
-		$this->session->put($this->instance, $content);
+		$this->session->put($this->instance, $this->toArray());
 	}
 
 	/**
@@ -390,21 +398,24 @@ class Cart
 	 */
 	public function store($identifier)
 	{
-		$content = $this->getContent();
-
-
-		$this->getConnection()
+	    // Remove any existing identifiers
+        // Although possibly first or update could work in future
+		$this
+            ->getConnection()
 			->table($this->getTableName())
 			->where('identifier', $identifier)
 			->delete();
 
-
-		$this->getConnection()->table($this->getTableName())->insert([
-			'identifier' => $identifier,
-			'instance' => $this->currentInstance(),
-			'content' => serialize($content),
-			'created_at'=> new \DateTime()
-		]);
+		// Insert into the database with the new cart
+		$this
+            ->getConnection()
+            ->table($this->getTableName())
+            ->insert([
+                'identifier' => $identifier,
+                'instance' => $this->currentInstance(),
+                'content' => serialize($this->toArray()),
+                'created_at'=> new DateTime(),
+            ]);
 
 		$this->events->dispatch('cart.stored', $this->currentInstance());
 	}
@@ -417,13 +428,18 @@ class Cart
 	 */
 	public function restore($identifier)
 	{
-		if( ! $this->storedCartWithIdentifierExists($identifier)) {
+		if ($this->storedCartWithIdentifierExists($identifier) === false) {
 			return;
 		}
 
-		$stored = $this->getConnection()->table($this->getTableName())
-			->where('identifier', $identifier)->first();
+		// Find any existing carts by identifier
+		$stored = $this
+            ->getConnection()
+            ->table($this->getTableName())
+			->where('identifier', $identifier)
+            ->first();
 
+		// Unserialize the content (either array if new, or collection if old)
 		$storedContent = unserialize($stored->content);
 
 		$currentInstance = $this->currentInstance();
@@ -432,28 +448,78 @@ class Cart
 
 		$content = $this->getContent();
 
-		foreach ($storedContent as $cartItem) {
-			$content->put($cartItem->rowId, $cartItem);
-		}
+		// If the new approach and is array, set this class up.
+        // Note that it overrides any existing items in cart
+        // Does not add to existing.
+		if (is_array($storedContent)) {
+		    $this->fromArray($storedContent);
+        }
+
+		// If the old approach and is Collection, push into existing items
+        if ($storedContent instanceof Collection) {
+            foreach ($storedContent as $cartItem) {
+                $content->put($cartItem->rowId, $cartItem);
+            }
+        }
 
 		$this->events->dispatch('cart.restored', $this->currentInstance());
 
-		$this->session->put($this->instance, $content);
+		$this->session->put($this->instance, $this->toArray());
 
 		$this->instance($currentInstance);
 	}
 
-	/**
-	 * Deletes the stored cart with given identifier
-	 *
-	 * @param mixed $identifier
-	 */
-	protected function deleteStoredCart($identifier) {
-		$this->getConnection()
-			->table($this->getTableName())
-			->where('identifier', $identifier)
-			->delete();
-	}
+    /**
+     * Gets a specific fee from the fees array.
+     *
+     * @param $name
+     *
+     * @return mixed
+     */
+    public function getFee($name)
+    {
+        return $this->fees->get($name, new CartFee(null, false));
+    }
+
+    /**
+     * Allows to charge for additional fees that may or may not be taxable
+     * ex - service fee , delivery fee, tips.
+     *
+     * @param            $name
+     * @param            $amount
+     * @param bool|false $taxable
+     * @param array      $options
+     */
+    public function addFee($name, $amount, $taxable = false, array $options = [])
+    {
+        $this->fees->set($name, new CartFee($amount, $taxable, $options));
+
+        $this->session->put($this->instance, $this->toArray());
+    }
+
+    /**
+     * Removes a fee from the fee array.
+     *
+     * @todo test to see if i need to restore this
+     *
+     * @param $name
+     */
+    public function removeFee($name)
+    {
+        $this->fees->forget($name);
+
+        $this->session->put($this->instance, $this->toArray());
+    }
+
+    /**
+     * Removes all the fees set in the cart.
+     */
+    public function removeFees()
+    {
+        $this->fees = new Collection;
+
+        $this->session->put($this->instance, $this->toArray());
+    }
 
 	/**
 	 * Magic method to make accessing the total, tax and subtotal properties possible.
@@ -463,37 +529,90 @@ class Cart
 	 */
 	public function __get($attribute)
 	{
-		if($attribute === 'total') {
+		if ($attribute === 'total') {
 			return $this->total();
 		}
 
-		if($attribute === 'tax') {
+		if ($attribute === 'tax') {
 			return $this->tax();
 		}
 
-		if($attribute === 'subtotal') {
+		if ($attribute === 'subtotal') {
 			return $this->subtotal();
 		}
 
-		if($attribute === 'subtotalTax') {
+		if ($attribute === 'subtotalTax') {
 			return $this->subtotalTax();
 		}
 
 		return null;
 	}
 
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'items' => $this->items,
+            'fees' => $this->fees,
+        ];
+    }
+
+    /**
+     * @param $array
+     * @return $this
+     */
+    public function fromArray($array)
+    {
+        $this->items = $array['items'];
+        $this->fees = $array['fees'];
+
+        return $this;
+    }
+
+    /**
+     * Deletes the stored cart with given identifier
+     *
+     * @param mixed $identifier
+     */
+    protected function deleteStoredCart($identifier)
+    {
+        $this
+            ->getConnection()
+            ->table($this->getTableName())
+            ->where('identifier', $identifier)
+            ->delete();
+    }
+
 	/**
 	 * Get the carts content, if there is no cart content set yet, return a new empty Collection
 	 *
 	 * @return \Illuminate\Support\Collection
 	 */
-	protected function getContent()
+	protected function getContent(): Collection
 	{
-		$content = $this->session->has($this->instance)
-			? $this->session->get($this->instance)
-			: new Collection;
+	    $instanceExists = $this->session->has($this->instance);
 
-		return $content;
+	    if ($instanceExists === false) {
+	        $this->items = new Collection;
+
+            return $this->items;
+        }
+
+        $instance = $this->session->get($this->instance);
+
+	    // If new approach, set $this variables
+	    if (is_array($instance) === true) {
+	        $this->items = $instance['items'];
+	        $this->fees = $instance['fees'];
+        }
+
+	    if ($instance instanceof Collection) {
+	        $this->items = $instance;
+        }
+
+        return $this->items;
 	}
 
 	/**
@@ -506,7 +625,7 @@ class Cart
 	 * @param array     $options
 	 * @return \Gloudemans\Shoppingcart\CartItem
 	 */
-	private function createCartItem($id, $name, $qty, $price, $taxRate, array $options)
+	private function createCartItem($id, $name, $qty, $price, $taxRate, array $options): CartItem
 	{
 		if ($id instanceof Buyable) {
 			$cartItem = CartItem::fromBuyable($id, $qty ?: []);
@@ -533,20 +652,26 @@ class Cart
 	 * @param mixed $item
 	 * @return bool
 	 */
-	private function isMulti($item)
+	private function isMulti($item): bool
 	{
-		if ( ! is_array($item)) return false;
+		if (is_array($item) === false) {
+            return false;
+        }
 
-		return is_array(head($item)) || head($item) instanceof Buyable;
+		return is_array(head($item)) || head($item) instanceof Buyable === true;
 	}
 
 	/**
 	 * @param $identifier
 	 * @return bool
 	 */
-	protected function storedCartWithIdentifierExists($identifier)
+	protected function storedCartWithIdentifierExists($identifier): bool
 	{
-		return $this->getConnection()->table($this->getTableName())->where('identifier', $identifier)->exists();
+		return $this
+            ->getConnection()
+            ->table($this->getTableName())
+            ->where('identifier', $identifier)
+            ->exists();
 	}
 
 	/**
@@ -581,29 +706,5 @@ class Cart
 		$connection = config('cart.database.connection');
 
 		return is_null($connection) ? config('database.default') : $connection;
-	}
-
-	/**
-	 * Get the Formated number
-	 *
-	 * @param $value
-	 * @param $decimals
-	 * @param $decimalPoint
-	 * @param $thousandSeperator
-	 * @return string
-	 */
-	private function numberFormat($value, $decimals, $decimalPoint, $thousandSeperator)
-	{
-		if(is_null($decimals)){
-			$decimals = is_null(config('cart.format.decimals')) ? 2 : config('cart.format.decimals');
-		}
-		if(is_null($decimalPoint)){
-			$decimalPoint = is_null(config('cart.format.decimal_point')) ? '.' : config('cart.format.decimal_point');
-		}
-		if(is_null($thousandSeperator)){
-			$thousandSeperator = is_null(config('cart.format.thousand_seperator')) ? ',' : config('cart.format.thousand_seperator');
-		}
-
-		return number_format($value, $decimals, $decimalPoint, $thousandSeperator);
 	}
 }
