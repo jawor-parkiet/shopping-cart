@@ -47,4 +47,29 @@ class CartFee
 
         return $this->numberFormat($total);
     }
+
+    /**
+     * @return string
+     */
+    public function tax()
+    {
+        $tax = $this->amount * $this->taxRate / 100;
+
+        return $this->numberFormat($tax);
+    }
+
+    /**
+     * Magic method to make accessing the total, tax and subtotal properties possible.
+     *
+     * @param string $attribute
+     * @return float|null
+     */
+    public function __get($attribute)
+    {
+        if ($attribute === 'tax') {
+            return $this->tax();
+        }
+
+        return null;
+    }
 }
