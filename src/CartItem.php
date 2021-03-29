@@ -149,39 +149,39 @@ class CartItem implements Arrayable, Jsonable
 		return $this->numberFormat($subtotal, $decimals, $decimalPoint, $thousandSeperator);
 	}
 
-	/**
-	 * Returns the formatted subtotal.
-	 * Subtotal is price for whole CartItem with TAX
-	 *
-	 * @param int    $decimals
-	 * @param string $decimalPoint
-	 * @param string $thousandSeperator
-	 * @return string
-	 */
-	public function subtotalTax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
-	{
-		$subtotal = $this->qty * $this->priceTax;
+    /**
+     * Returns the formatted subtotal.
+     * Subtotal is price for whole CartItem with TAX
+     *
+     * @param int    $decimals
+     * @param string $decimalPoint
+     * @param string $thousandSeperator
+     * @return string
+     */
+    public function subtotalTax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    {
+        $subtotal = $this->subtotal + $this->taxTotal;
         $decimals = is_null($decimals) ? config('cart.format.subtotal_inc_tax_decimals') : $decimals;
 
-		return $this->numberFormat($subtotal, $decimals, $decimalPoint, $thousandSeperator);
-	}
+        return $this->numberFormat($subtotal, $decimals, $decimalPoint, $thousandSeperator);
+    }
 
-	/**
-	 * Returns the formatted total.
-	 * Total is price for whole CartItem with tax
-	 *
-	 * @param int    $decimals
-	 * @param string $decimalPoint
-	 * @param string $thousandSeperator
-	 * @return string
-	 */
-	public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null)
-	{
-		$total = $this->qty * $this->priceTax;
+    /**
+     * Returns the formatted total.
+     * Total is price for whole CartItem with tax
+     *
+     * @param int    $decimals
+     * @param string $decimalPoint
+     * @param string $thousandSeperator
+     * @return string
+     */
+    public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    {
+        $total = $this->subtotalTax;
         $decimals = is_null($decimals) ? config('cart.format.total_decimals') : $decimals;
 
-		return $this->numberFormat($total, $decimals, $decimalPoint, $thousandSeperator);
-	}
+        return $this->numberFormat($total, $decimals, $decimalPoint, $thousandSeperator);
+    }
 
 	/**
 	 * Returns the formatted tax.
