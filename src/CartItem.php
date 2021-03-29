@@ -177,7 +177,7 @@ class CartItem implements Arrayable, Jsonable
 	 */
 	public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null)
 	{
-		$total = $this->qty * priceTax;
+		$total = $this->qty * $this->priceTax;
         $decimals = is_null($decimals) ? config('cart.format.total_decimals') : $decimals;
 
 		return $this->numberFormat($total, $decimals, $decimalPoint, $thousandSeperator);
