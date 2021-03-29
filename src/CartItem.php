@@ -111,6 +111,8 @@ class CartItem implements Arrayable, Jsonable
 	 */
 	public function price($decimals = null, $decimalPoint = null, $thousandSeperator = null)
 	{
+        $decimals = is_null($decimals) ? config('cart.format.price_ex_tax_decimals') : $decimals;
+
 		return $this->numberFormat($this->price, $decimals, $decimalPoint, $thousandSeperator);
 	}
 
@@ -124,7 +126,8 @@ class CartItem implements Arrayable, Jsonable
 	 */
 	public function priceTax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
 	{
-		$priceTax = number_format(($this->price + $this->tax), $decimals, '.', '');
+		$priceTax = $this->price + $this->tax;
+        $decimals = is_null($decimals) ? config('cart.format.price_inc_tax_decimals') : $decimals;
 
 		return $this->numberFormat($priceTax, $decimals, $decimalPoint, $thousandSeperator);
 	}
@@ -140,7 +143,8 @@ class CartItem implements Arrayable, Jsonable
 	 */
 	public function subtotal($decimals = null, $decimalPoint = null, $thousandSeperator = null)
 	{
-		$subtotal = number_format(($this->qty * $this->price), $decimals, '.', '');
+		$subtotal = $this->qty * $this->price;
+        $decimals = is_null($decimals) ? config('cart.format.subtotal_ex_tax_decimals') : $decimals;
 
 		return $this->numberFormat($subtotal, $decimals, $decimalPoint, $thousandSeperator);
 	}
@@ -156,7 +160,8 @@ class CartItem implements Arrayable, Jsonable
 	 */
 	public function subtotalTax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
 	{
-		$subtotal = number_format(($this->qty * $this->priceTax), $decimals, '.', '');
+		$subtotal = $this->qty * $this->priceTax;
+        $decimals = is_null($decimals) ? config('cart.format.subtotal_inc_tax_decimals') : $decimals;
 
 		return $this->numberFormat($subtotal, $decimals, $decimalPoint, $thousandSeperator);
 	}
@@ -172,7 +177,8 @@ class CartItem implements Arrayable, Jsonable
 	 */
 	public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null)
 	{
-		$total = number_format(($this->qty * priceTax), $decimals, '.', '');
+		$total = $this->qty * priceTax;
+        $decimals = is_null($decimals) ? config('cart.format.total_decimals') : $decimals;
 
 		return $this->numberFormat($total, $decimals, $decimalPoint, $thousandSeperator);
 	}
@@ -187,7 +193,8 @@ class CartItem implements Arrayable, Jsonable
 	 */
 	public function tax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
 	{
-		$tax = number_format(($this->price * ($this->taxRate / 100)), $decimals, '.', '');
+		$tax = $this->price * ($this->taxRate / 100);
+        $decimals = is_null($decimals) ? config('cart.format.tax_decimals') : $decimals;
 
 		return $this->numberFormat($tax, $decimals, $decimalPoint, $thousandSeperator);
 	}
@@ -202,7 +209,8 @@ class CartItem implements Arrayable, Jsonable
 	 */
 	public function taxTotal($decimals = null, $decimalPoint = null, $thousandSeperator = null)
 	{
-		$taxTotal = number_format(($this->tax * $this->qty), $decimals, '.', '');
+		$taxTotal = $this->tax * $this->qty;
+        $decimals = is_null($decimals) ? config('cart.format.tax_total_decimals') : $decimals;
 
 		return $this->numberFormat($taxTotal, $decimals, $decimalPoint, $thousandSeperator);
 	}
@@ -299,37 +307,35 @@ class CartItem implements Arrayable, Jsonable
 	 */
 	public function __get($attribute)
 	{
-		if(property_exists($this, $attribute)) {
+		if (property_exists($this, $attribute)) {
 			return $this->{$attribute};
 		}
 
-		$decimals = config('cart.format.decimals') ?? 2;
-
 		if ($attribute === 'priceTax') {
-			return $this->priceTax($decimals);
+			return $this->priceTax();
 		}
 
 		if ($attribute === 'subtotal') {
-			return $this->subtotal($decimals);
+			return $this->subtotal();
 		}
 
 		if ($attribute === 'subtotalTax') {
-			return $this->subtotalTax($decimals);
+			return $this->subtotalTax();
 		}
 
 		if ($attribute === 'total') {
-			return $this->total($decimals);
+			return $this->total();
 		}
 
 		if ($attribute === 'tax') {
-			return $this->tax($decimals);
+			return $this->tax();
 		}
 
 		if ($attribute === 'taxTotal') {
-			return $this->taxTotal($decimals);
+			return $this->taxTotal();
 		}
 
-		if($attribute === 'model' && isset($this->associatedModel)) {
+		if ($attribute === 'model' && isset($this->associatedModel)) {
 			return with(new $this->associatedModel)->find($this->id);
 		}
 

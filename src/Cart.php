@@ -274,7 +274,7 @@ class Cart
         $content = $this->getContent();
 
         $total = $content->reduce(function ($total, CartItem $cartItem) {
-            return $total + ($cartItem->qty * $cartItem->priceTax);
+            return $total + ($cartItem->total);
         }, 0);
 
         if ($withFees === true) {
@@ -282,6 +282,8 @@ class Cart
 
             $total = $total + $fees;
         }
+
+        $decimals = is_null($decimals) ? config('cart.format.total_decimals') : $decimals;
 
         return $this->numberFormat($total, $decimals, $decimalPoint, $thousandSeperator);
     }
@@ -299,7 +301,7 @@ class Cart
         $content = $this->getContent();
 
         $tax = $content->reduce(function ($tax, CartItem $cartItem) {
-            return $tax + ($cartItem->qty * $cartItem->tax);
+            return $tax + ($cartItem->taxTotal);
         }, 0);
 
         if ($withFees === true) {
@@ -307,6 +309,8 @@ class Cart
 
             $tax = $tax + floatval($fees);
         }
+
+        $decimals = is_null($decimals) ? config('cart.format.tax_decimals') : $decimals;
 
         return $this->numberFormat($tax, $decimals, $decimalPoint, $thousandSeperator);
     }
@@ -329,11 +333,13 @@ class Cart
             $tax += $fee->tax;
         }
 
+        $decimals = is_null($decimals) ? config('cart.format.fee_total_tax_decimals') : $decimals;
+
         return $this->numberFormat($tax, $decimals, $decimalPoint, $thousandSeperator);
     }
 
     /**
-     * Get the subtotal (total - tax) of the items in the cart.
+     * Get the subtotal (ex tax) of the items in the cart.
      *
      * @param int    $decimals
      * @param string $decimalPoint
@@ -345,8 +351,10 @@ class Cart
         $content = $this->getContent();
 
         $subTotal = $content->reduce(function ($subTotal, CartItem $cartItem) {
-            return $subTotal + ($cartItem->qty * $cartItem->price);
+            return $subTotal + ($cartItem->subtotal);
         }, 0);
+
+        $decimals = is_null($decimals) ? config('cart.format.subtotal_ex_tax_decimals') : $decimals;
 
         return $this->numberFormat($subTotal, $decimals, $decimalPoint, $thousandSeperator);
     }
@@ -364,8 +372,10 @@ class Cart
         $content = $this->getContent();
 
         $subTotal = $content->reduce(function ($subTotal, CartItem $cartItem) {
-            return $subTotal + ($cartItem->qty * $cartItem->priceTax);
+            return $subTotal + ($cartItem->subtotalTax);
         }, 0);
+
+        $decimals = is_null($decimals) ? config('cart.format.subtotal_inc_tax_decimals') : $decimals;
 
         return $this->numberFormat($subTotal, $decimals, $decimalPoint, $thousandSeperator);
     }
