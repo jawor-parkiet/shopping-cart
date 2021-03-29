@@ -63,6 +63,8 @@ return [
 
         'price_ex_tax_decimals' => 2, // base unit price shown to user ex gst should be 2 by default.
         'price_inc_tax_decimals' => 2, // base unit price shown to user ex gst should be 2 by default.
+        'fee_ex_tax_decimals' => 4, // fee ex tax should be 4 decimals.
+        'fee_inc_tax_decimals' => 4, // fee inc tax should be 4 decimals.
         'fee_total_tax_decimals' => 4, // fee total tax should be 4 decimals.
         'tax_decimals' => 4, // unit price tax can be 4 decimals. Eg. $2.81 * 1.1 = $3.091 inc tax = $0.281 tax.
         'tax_total_decimals' => 4, // total tax can be 4 decimals. Eg. $0.281 * 12 qty = $3.372 total tax.

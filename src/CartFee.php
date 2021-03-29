@@ -30,6 +30,37 @@ class CartFee
     }
 
     /**
+     * Returns the formatted fee amount without TAX.
+     *
+     * @param int    $decimals
+     * @param string $decimalPoint
+     * @param string $thousandSeperator
+     * @return string
+     */
+    public function amountWithouTax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    {
+        $decimals = is_null($decimals) ? config('cart.format.fee_ex_tax_decimals') : $decimals;
+
+        return $this->numberFormat($this->price, $decimals, $decimalPoint, $thousandSeperator);
+    }
+
+    /**
+     * Returns the formatted fee amount with TAX.
+     *
+     * @param int    $decimals
+     * @param string $decimalPoint
+     * @param string $thousandSeperator
+     * @return string
+     */
+    public function amountTax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    {
+        $priceTax = $this->amount + $this->tax;
+        $decimals = is_null($decimals) ? config('cart.format.fee_inc_tax_decimals') : $decimals;
+
+        return $this->numberFormat($priceTax, $decimals, $decimalPoint, $thousandSeperator);
+    }
+
+    /**
      * Gets the formatted amount.
      *
      * @param bool $format
@@ -66,6 +97,18 @@ class CartFee
      */
     public function __get($attribute)
     {
+        if (property_exists($this, $attribute)) {
+            return $this->{$attribute};
+        }
+
+        if ($attribute === 'amountWithouTax') {
+            return $this->amountWithouTax();
+        }
+
+        if ($attribute === 'amountTax') {
+            return $this->amountTax();
+        }
+
         if ($attribute === 'tax') {
             return $this->tax();
         }
