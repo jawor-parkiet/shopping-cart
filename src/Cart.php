@@ -95,7 +95,7 @@ class Cart
      * @param array     $options
      * @return \Gloudemans\Shoppingcart\CartItem
      */
-    public function add($id, $name = null, $qty = null, $price = null, $taxRate = null, array $options = [])
+    public function add($id, $name = null, $qty = null, $price = null, $taxRate = null, $taxIncluded = false, array $options = [])
     {
         if ($this->isMulti($id)) {
             return array_map(function ($item) {
@@ -106,7 +106,7 @@ class Cart
         if ($id instanceof CartItem) {
             $cartItem = $id;
         } else {
-            $cartItem = $this->createCartItem($id, $name, $qty, $price, $taxRate, $options);
+            $cartItem = $this->createCartItem($id, $name, $qty, $price, $taxRate, $taxIncluded, $options);
         }
 
         $content = $this->getContent();
@@ -724,7 +724,7 @@ class Cart
      * @param array     $options
      * @return \Gloudemans\Shoppingcart\CartItem
      */
-    private function createCartItem($id, $name, $qty, $price, $taxRate, array $options): CartItem
+    private function createCartItem($id, $name, $qty, $price, $taxRate, bool $taxIncluded, array $options): CartItem
     {
         if ($id instanceof Buyable) {
             $cartItem = CartItem::fromBuyable($id, $qty ?: []);
@@ -741,6 +741,7 @@ class Cart
         $taxRate = is_int($taxRate) ? $taxRate : config('cart.tax');
 
         $cartItem->setTaxRate($taxRate);
+        $cartItem->setTaxIncluded($taxIncluded);
 
         return $cartItem;
     }
