@@ -428,7 +428,13 @@ class CartItem implements Arrayable, Jsonable
     {
         ksort($options);
 
-        return md5($id . serialize($options));
+        $uniqueString = '';
+
+        if (config('cart.allow_multiple_same_id') === true) {
+            $uniqueString = microtime(true);
+        }
+
+        return md5($id . $uniqueString . serialize($options));
     }
 
     /**

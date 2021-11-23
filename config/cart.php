@@ -16,6 +16,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Allow multiple rows with the same ID
+    |--------------------------------------------------------------------------
+    |
+    | By default, the row ID is generated to a MD5 based on ID + Options array.
+    | If you want to have more than one unique product in a cart, you either have
+    | to set a unique value in the Options array (eg Reason = X), or you can simply
+    | enable this option, and each time you add a new Cart row, it will add to the cart.
+    |
+    */
+    'allow_multiple_same_id' => false,
+
+    /*
+    |--------------------------------------------------------------------------
     | Shoppingcart database settings
     |--------------------------------------------------------------------------
     |
