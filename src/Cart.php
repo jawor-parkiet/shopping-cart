@@ -88,14 +88,17 @@ class Cart
     /**
      * Add an item to the cart.
      *
-     * @param mixed     $id
-     * @param mixed     $name
-     * @param int|float $qty
-     * @param float     $price
-     * @param array     $options
-     * @return \Gloudemans\Shoppingcart\CartItem
+     * @param $id
+     * @param $name
+     * @param $qty
+     * @param $price
+     * @param $taxRate
+     * @param $taxIncluded
+     * @param array $options
+     * @param array $eventOptions
+     * @return array|array[]|CartItem|CartItem[]
      */
-    public function add($id, $name = null, $qty = null, $price = null, $taxRate = null, $taxIncluded = false, array $options = [])
+    public function add($id, $name = null, $qty = null, $price = null, $taxRate = null, $taxIncluded = false, array $options = [], array $eventOptions = [])
     {
         if ($this->isMulti($id)) {
             return array_map(function ($item) {
@@ -121,11 +124,13 @@ class Cart
 
         $this->session->put($this->instance, $this->toArray());
 
+        $eventOptions = array_merge([
+            'cartInstance' => $this->currentInstance(),
+            'cartItem' => $cartItem,
+        ], $eventOptions);
+
         $this->events->dispatch('cart.added', [
-            [
-                'cartInstance' => $this->currentInstance(),
-                'cartItem' => $cartItem,
-            ]
+            $eventOptions,
         ]);
 
         return $cartItem;
@@ -134,11 +139,12 @@ class Cart
     /**
      * Update the cart item with the given rowId.
      *
-     * @param string $rowId
-     * @param mixed  $qty
-     * @return \Gloudemans\Shoppingcart\CartItem
+     * @param $rowId
+     * @param $qty
+     * @param array $eventOptions
+     * @return CartItem|void
      */
-    public function update($rowId, $qty)
+    public function update($rowId, $qty, array $eventOptions = [])
     {
         $cartItem = $this->get($rowId);
 
@@ -171,16 +177,19 @@ class Cart
 
         if ($cartItem->qty <= 0) {
             $this->remove($cartItem->rowId);
+
             return;
         }
 
         $this->session->put($this->instance, $this->toArray());
 
+        $eventOptions = array_merge([
+            'cartInstance' => $this->currentInstance(),
+            'cartItem' => $cartItem,
+        ], $eventOptions);
+
         $this->events->dispatch('cart.updated', [
-            [
-                'cartInstance' => $this->currentInstance(),
-                'cartItem' => $cartItem,
-            ]
+            $eventOptions
         ]);
 
         return $cartItem;
@@ -189,10 +198,11 @@ class Cart
     /**
      * Remove the cart item with the given rowId from the cart.
      *
-     * @param string $rowId
+     * @param $rowId
+     * @param array $eventOptions
      * @return void
      */
-    public function remove($rowId)
+    public function remove($rowId, array $eventOptions = [])
     {
         $cartItem = $this->get($rowId);
 
@@ -204,11 +214,13 @@ class Cart
 
         $this->session->put($this->instance, $this->toArray());
 
+        $eventOptions = array_merge([
+            'cartInstance' => $this->currentInstance(),
+            'cartItem' => $cartItem,
+        ], $eventOptions);
+
         $this->events->dispatch('cart.removed', [
-            [
-                'cartInstance' => $this->currentInstance(),
-                'cartItem' => $cartItem,
-            ]
+            $eventOptions
         ]);
     }
 
@@ -445,10 +457,11 @@ class Cart
     /**
      * Store an the current instance of the cart.
      *
-     * @param mixed $identifier
+     * @param $identifier
+     * @param array $eventOptions
      * @return void
      */
-    public function store($identifier)
+    public function store($identifier, array $eventOptions = [])
     {
         // Remove any existing identifiers
         // Although possibly first or update could work in future
@@ -469,16 +482,23 @@ class Cart
                 'created_at'=> new DateTime(),
             ]);
 
-        $this->events->dispatch('cart.stored', $this->currentInstance());
+        $eventOptions = array_merge([
+            'cartInstance' => $this->currentInstance(),
+        ], $eventOptions);
+
+        $this->events->dispatch('cart.stored', [
+            $eventOptions,
+        ]);
     }
 
     /**
      * Restore the cart with the given identifier.
      *
-     * @param mixed $identifier
+     * @param $identifier
+     * @param array $eventOptions
      * @return void
      */
-    public function restore($identifier)
+    public function restore($identifier, array $eventOptions = [])
     {
         if ($this->storedCartWithIdentifierExists($identifier) === false) {
             return;
@@ -514,7 +534,13 @@ class Cart
             }
         }
 
-        $this->events->dispatch('cart.restored', $this->currentInstance());
+        $eventOptions = array_merge([
+            'cartInstance' => $this->currentInstance(),
+        ], $eventOptions);
+
+        $this->events->dispatch('cart.restored', [
+            $eventOptions,
+        ]);
 
         $this->session->put($this->instance, $this->toArray());
 
