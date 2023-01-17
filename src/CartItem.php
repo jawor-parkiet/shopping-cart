@@ -48,13 +48,6 @@ class CartItem implements Arrayable, Jsonable
     public $price;
 
     /**
-     * The price with TAX of the cart item.
-     *
-     * @var float
-     */
-    public $priceTax;
-
-    /**
      * The options for this cart item.
      *
      * @var array
@@ -269,7 +262,6 @@ class CartItem implements Arrayable, Jsonable
         $this->id       = $item->getBuyableIdentifier($this->options);
         $this->name     = $item->getBuyableDescription($this->options);
         $this->price    = $item->getBuyablePrice($this->options);
-        $this->priceTax = $this->price + $this->tax;
     }
 
     /**
@@ -284,7 +276,6 @@ class CartItem implements Arrayable, Jsonable
         $this->qty      = array_get($attributes, 'qty', $this->qty);
         $this->name     = array_get($attributes, 'name', $this->name);
         $this->price    = array_get($attributes, 'price', $this->price);
-        $this->priceTax = $this->price + $this->tax;
         $this->options  = new CartItemOptions(array_get($attributes, 'options', $this->options));
 
         $this->rowId = $this->generateRowId($this->id, $this->options->all());
