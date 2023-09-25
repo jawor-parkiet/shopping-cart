@@ -241,7 +241,8 @@ class CartItem implements Arrayable, Jsonable
     /**
      * Set the quantity for this cart item.
      *
-     * @param int|float $qty
+     * @param $qty
+     * @return $this
      */
     public function setQuantity($qty)
     {
@@ -249,6 +250,8 @@ class CartItem implements Arrayable, Jsonable
             throw new \InvalidArgumentException('Please supply a valid quantity.');
 
         $this->qty = $qty;
+
+        return $this;
     }
 
     /**
