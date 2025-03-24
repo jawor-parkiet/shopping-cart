@@ -464,23 +464,34 @@ class Cart
     public function store($identifier, array $eventOptions = [])
     {
         // Remove any existing identifiers
-        // Although possibly first or update could work in future
-        $this
+        $recordExists = $this
             ->getConnection()
             ->table($this->getTableName())
             ->where('identifier', $identifier)
-            ->delete();
+            ->exists();
 
-        // Insert into the database with the new cart
-        $this
-            ->getConnection()
-            ->table($this->getTableName())
-            ->insert([
-                'identifier' => $identifier,
-                'instance' => $this->currentInstance(),
-                'content' => serialize($this->toArray()),
-                'created_at'=> new DateTime(),
-            ]);
+        if ($recordExists === false) {
+            // Insert into the database with the new cart
+            $this
+                ->getConnection()
+                ->table($this->getTableName())
+                ->insert([
+                    'identifier' => $identifier,
+                    'instance' => $this->currentInstance(),
+                    'content' => serialize($this->toArray()),
+                    'created_at'=> new DateTime(),
+                ]);
+        } else {
+            // Or update if set
+            $this
+                ->getConnection()
+                ->table($this->getTableName())
+                ->where('identifier', $identifier)
+                ->where('instance', $this->currentInstance())
+                ->update([
+                    'content' => serialize($this->toArray()),
+                ]);
+        }
 
         $eventOptions = array_merge([
             'cartInstance' => $this->currentInstance(),
