@@ -830,7 +830,7 @@ class Cart
      */
     protected function getTableName()
     {
-        return config('cart.database.table', 'shoppingcart');
+        return config('cart.database.table', 'cart');
     }
 
     /**

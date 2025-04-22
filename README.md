@@ -1,7 +1,7 @@
-## LaravelShoppingcart
-[![License](https://poser.pugx.org/gloudemans/shoppingcart/license)](https://packagist.org/packages/gloudemans/shoppingcart)
+## Laravel Shopping Cart
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-A simple shoppingcart implementation for Laravel.
+A simple shopping cart implementation for Laravel.
 
 ## Installation
 
@@ -9,7 +9,7 @@ Install the package through [Composer](http://getcomposer.org/).
 
 Run the Composer require command from the Terminal:
 
-    composer require digital-bird/shoppingcart
+    composer require jawor-parkiet/shopping-cart:dev-master
     
 If you're using Laravel 5.5, this is all there is to do. 
 
@@ -23,7 +23,7 @@ And optionally add a new line to the `aliases` array:
 
 	'Cart' => JaworParkiet\ShoppingCart\Facades\Cart::class,
 
-Now you're ready to start using the shoppingcart in your application.
+Now you're ready to start using the shopping cart functionality in your application.
 
 **As of version 2 of this package it's possibly to use dependency injection to inject an instance of the Cart class into your controller or other class**
 
@@ -41,7 +41,7 @@ Look at one of the following topics to learn more about LaravelShoppingcart
 
 ## Usage
 
-The shoppingcart gives you the following methods to use:
+The shopping cart gives you the following methods to use:
 
 ### Cart::add()
 
@@ -380,18 +380,18 @@ class Product exends Model implements Buyable {
 
 ### Configuration
 To save cart into the database so you can retrieve it later, the package needs to know which database connection to use and what the name of the table is.
-By default the package will use the default database connection and use a table named `shoppingcart`.
+By default the package will use the default database connection and use a table named `cart`.
 If you want to change these options, you'll have to publish the `config` file.
 
-    php artisan vendor:publish --provider="JaworParkiet\ShoppingCart\ShoppingcartServiceProvider" --tag="config"
+    php artisan vendor:publish --provider="JaworParkiet\ShoppingCart\ShoppingCartServiceProvider" --tag="config"
 
 This will give you a `cart.php` config file in which you can make the changes.
 
 To make your life easy, the package also includes a ready to use `migration` which you can publish by running:
 
-    php artisan vendor:publish --provider="JaworParkiet\ShoppingCart\ShoppingcartServiceProvider" --tag="migrations"
+    php artisan vendor:publish --provider="JaworParkiet\ShoppingCart\ShoppingCartServiceProvider" --tag="migrations"
     
-This will place a `shoppingcart` table's migration file into `database/migrations` directory. Now all you have to do is run `php artisan migrate` to migrate your database.
+This will place a cart's migration file into `database/migrations` directory. Now all you have to do is run `php artisan migrate` to migrate your database.
 
 ### Storing the cart    
 To store your cart instance into the database, you have to call the `store($identifier) ` method. Where `$identifier` is a random key, for instance the id or username of the user.

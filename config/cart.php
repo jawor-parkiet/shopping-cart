@@ -12,7 +12,7 @@ return [
     |
     */
 
-    'tax' => 10,
+    'tax' => 23,
 
     /*
     |--------------------------------------------------------------------------
@@ -32,7 +32,7 @@ return [
     | Shoppingcart database settings
     |--------------------------------------------------------------------------
     |
-    | Here you can set the connection that the shoppingcart should use when
+    | Here you can set the connection that the shopping cart should use when
     | storing and restoring a cart.
     |
     */
@@ -41,7 +41,7 @@ return [
 
         'connection' => null,
 
-        'table' => 'shoppingcart',
+        'table' => 'cart',
 
     ],
 
