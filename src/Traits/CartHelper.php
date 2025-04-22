@@ -1,6 +1,6 @@
 <?php
 
-namespace Gloudemans\Shoppingcart\Traits;
+namespace JaworParkiet\ShoppingCart\Traits;
 
 /**
  * trait CartHelper

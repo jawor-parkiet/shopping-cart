@@ -1,15 +1,15 @@
 {
-    "name": "digital-bird/shoppingcart",
-    "description": "Laravel Shoppingcart",
+    "name": "jawor-parkiet/shopping-cart",
+    "description": "Laravel Shopping Cart dedicated to Jawor-Parkiet E-commerce",
     "keywords": [
         "laravel",
-        "shoppingcart"
+        "shopping cart"
     ],
     "license": "MIT",
     "authors": [
         {
-            "name": "Rob Gloudemans",
-            "email": "info@robgloudemans.nl"
+            "name": "Matt Komarnicki",
+            "email": "matt@mattkomarnicki.com"
         }
     ],
     "require": {
@@ -24,12 +24,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Gloudemans\\Shoppingcart\\": "src/"
+            "JaworParkiet\\ShoppingCart\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Gloudemans\\Tests\\Shoppingcart\\": "tests/"
+            "JaworParkiet\\Tests\\ShoppingCart\\": "tests/"
         }
     },
     "suggest": {
@@ -39,10 +39,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Gloudemans\\Shoppingcart\\ShoppingcartServiceProvider"
+                "ShoppingCartServiceProvider"
             ],
             "aliases": {
-                "Cart": "Gloudemans\\Shoppingcart\\Facades\\Cart"
+                "Cart": "JaworParkiet\\ShoppingCart\\Facades\\Cart"
             }
         }
     }

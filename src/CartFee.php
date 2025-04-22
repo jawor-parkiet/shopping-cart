@@ -1,8 +1,8 @@
 <?php
 
-namespace Gloudemans\Shoppingcart;
+namespace JaworParkiet\ShoppingCart;
 
-use Gloudemans\Shoppingcart\Traits\CartHelper;
+use JaworParkiet\ShoppingCart\Traits\CartHelper;
 
 /**
  * Class CartFee.
