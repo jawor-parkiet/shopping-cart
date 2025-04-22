@@ -2,11 +2,11 @@
 
 namespace JaworParkiet\ShoppingCart;
 
-use JaworParkiet\ShoppingCart\Traits\CartHelper;
 use Illuminate\Contracts\Support\Arrayable;
-use JaworParkiet\ShoppingCart\Contracts\Buyable;
 use Illuminate\Contracts\Support\Jsonable;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Arr;
+use JaworParkiet\ShoppingCart\Contracts\Buyable;
+use JaworParkiet\ShoppingCart\Traits\CartHelper;
 
 class CartItem implements Arrayable, Jsonable
 {
@@ -135,9 +135,9 @@ class CartItem implements Arrayable, Jsonable
     public function priceTax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
     {
         if ($this->taxIncluded === true) {
-            $priceTax = $this->price;
+            $priceTax = $this->parseFormattedNumber($this->price);
         } else {
-            $priceTax = $this->price + $this->tax;
+            $priceTax = $this->parseFormattedNumber($this->price) + $this->parseFormattedNumber($this->tax);
         }
 
         $decimals = is_null($decimals) ? config('cart.format.price_inc_tax_decimals') : $decimals;
@@ -174,9 +174,9 @@ class CartItem implements Arrayable, Jsonable
     public function subtotalTax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
     {
         if ($this->taxIncluded === true) {
-            $subtotal = $this->subtotal;
+            $subtotal = $this->parseFormattedNumber($this->subtotal);
         } else {
-            $subtotal = $this->subtotal + $this->taxTotal;
+            $subtotal = $this->parseFormattedNumber($this->subtotal) + $this->parseFormattedNumber($this->taxTotal);
         }
 
         $decimals = is_null($decimals) ? config('cart.format.subtotal_inc_tax_decimals') : $decimals;
@@ -195,7 +195,7 @@ class CartItem implements Arrayable, Jsonable
      */
     public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null)
     {
-        $total = $this->subtotalTax;
+        $total = $this->parseFormattedNumber($this->subtotalTax);
         $decimals = is_null($decimals) ? config('cart.format.total_decimals') : $decimals;
 
         return $this->numberFormat($total, $decimals, $decimalPoint, $thousandSeperator);
@@ -232,7 +232,9 @@ class CartItem implements Arrayable, Jsonable
      */
     public function taxTotal($decimals = null, $decimalPoint = null, $thousandSeperator = null)
     {
-        $taxTotal = $this->tax * $this->qty;
+        $tax = $this->parseFormattedNumber($this->tax);
+
+        $taxTotal = $tax * $this->qty;
         $decimals = is_null($decimals) ? config('cart.format.tax_total_decimals') : $decimals;
 
         return $this->numberFormat($taxTotal, $decimals, $decimalPoint, $thousandSeperator);
@@ -275,11 +277,11 @@ class CartItem implements Arrayable, Jsonable
      */
     public function updateFromArray(array $attributes)
     {
-        $this->id       = array_get($attributes, 'id', $this->id);
-        $this->qty      = array_get($attributes, 'qty', $this->qty);
-        $this->name     = array_get($attributes, 'name', $this->name);
-        $this->price    = array_get($attributes, 'price', $this->price);
-        $this->options  = new CartItemOptions(array_get($attributes, 'options', $this->options));
+        $this->id       = Arr::get($attributes, 'id', $this->id);
+        $this->qty      = Arr::get($attributes, 'qty', $this->qty);
+        $this->name     = Arr::get($attributes, 'name', $this->name);
+        $this->price    = Arr::get($attributes, 'price', $this->price);
+        $this->options  = new CartItemOptions(Arr::get($attributes, 'options', $this->options));
 
         $this->rowId = $this->generateRowId($this->id, $this->options->all());
     }
@@ -399,7 +401,7 @@ class CartItem implements Arrayable, Jsonable
      */
     public static function fromArray(array $attributes)
     {
-        $options = array_get($attributes, 'options', []);
+        $options = Arr::get($attributes, 'options', []);
 
         return new self($attributes['id'], $attributes['name'], $attributes['price'], $options);
     }

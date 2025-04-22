@@ -1,6 +1,6 @@
 <?php
 
-namespace JaworParkiet\Tests\Shoppingcart;
+namespace JaworParkiet\Tests\ShoppingCart;
 
 use Orchestra\Testbench\TestCase;
 use JaworParkiet\ShoppingCart\CartItem;
@@ -19,8 +19,7 @@ class CartItemTest extends TestCase
         return [ShoppingCartServiceProvider::class];
     }
 
-    /** @test */
-    public function it_can_be_cast_to_an_array()
+    public function test_it_can_be_cast_to_an_array(): void
     {
         $cartItem = new CartItem(1, 'Some item', 10.00, ['size' => 'XL', 'color' => 'red']);
         $cartItem->setQuantity(2);
@@ -41,15 +40,14 @@ class CartItemTest extends TestCase
         ], $cartItem->toArray());
     }
 
-    /** @test */
-    public function it_can_be_cast_to_json()
+    public function test_it_can_be_cast_to_json(): void
     {
         $cartItem = new CartItem(1, 'Some item', 10.00, ['size' => 'XL', 'color' => 'red']);
         $cartItem->setQuantity(2);
 
         $this->assertJson($cartItem->toJson());
 
-        $json = '{"rowId":"07d5da5550494c62daf9993cf954303f","id":1,"name":"Some item","qty":2,"price":10,"options":{"size":"XL","color":"red"},"tax":"0.00","isSaved":false,"subtotal":"20.00"}';
+        $json = '{"rowId":"07d5da5550494c62daf9993cf954303f","id":1,"name":"Some item","qty":2,"price":10,"options":{"size":"XL","color":"red"},"tax":"0.0000","isSaved":false,"subtotal":"20.0000"}';
 
         $this->assertEquals($json, $cartItem->toJson());
     }

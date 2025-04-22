@@ -286,11 +286,11 @@ class Cart
         $content = $this->getContent();
 
         $total = $content->reduce(function ($total, CartItem $cartItem) {
-            return $total + ($cartItem->total);
+            return $total + $this->parseFormattedNumber($cartItem->total);
         }, 0);
 
         if ($withFees === true) {
-            $fees = $this->feeTotal(null, null, null, true);
+            $fees = $this->parseFormattedNumber($this->feeTotal());
 
             $total = $total + $fees;
         }
@@ -313,7 +313,7 @@ class Cart
         $content = $this->getContent();
 
         $tax = $content->reduce(function ($tax, CartItem $cartItem) {
-            return $tax + ($cartItem->taxTotal);
+            return $tax + floatval($cartItem->taxTotal);
         }, 0);
 
         if ($withFees === true) {
@@ -363,7 +363,7 @@ class Cart
         $content = $this->getContent();
 
         $subTotal = $content->reduce(function ($subTotal, CartItem $cartItem) {
-            return $subTotal + ($cartItem->subtotal);
+            return $subTotal + $this->parseFormattedNumber($cartItem->subtotal());
         }, 0);
 
         $decimals = is_null($decimals) ? config('cart.format.subtotal_ex_tax_decimals') : $decimals;
