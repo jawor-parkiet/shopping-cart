@@ -39,7 +39,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "ShoppingCartServiceProvider"
+                "JaworParkiet\\ShoppingCart\\ShoppingCartServiceProvider"
             ],
             "aliases": {
                 "Cart": "JaworParkiet\\ShoppingCart\\Facades\\Cart"
