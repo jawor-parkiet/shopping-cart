@@ -4,15 +4,14 @@ namespace JaworParkiet\ShoppingCart;
 
 use Closure;
 use DateTime;
-use JaworParkiet\ShoppingCart\Traits\CartHelper;
-use Illuminate\Support\Collection;
-use Illuminate\Session\SessionManager;
-use Illuminate\Database\DatabaseManager;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\DatabaseManager;
+use Illuminate\Session\SessionManager;
+use Illuminate\Support\Collection;
 use JaworParkiet\ShoppingCart\Contracts\Buyable;
-use JaworParkiet\ShoppingCart\Exceptions\UnknownModelException;
 use JaworParkiet\ShoppingCart\Exceptions\InvalidRowIDException;
-use JaworParkiet\ShoppingCart\Exceptions\CartAlreadyStoredException;
+use JaworParkiet\ShoppingCart\Exceptions\UnknownModelException;
+use JaworParkiet\ShoppingCart\Traits\CartHelper;
 
 class Cart
 {
@@ -21,6 +20,7 @@ class Cart
     const DEFAULT_INSTANCE = 'default';
 
     public $items;
+
     public $fees;
 
     /**
@@ -54,6 +54,7 @@ class Cart
     {
         $this->items = new Collection;
         $this->fees = new Collection;
+
         $this->session = $session;
         $this->events = $events;
 

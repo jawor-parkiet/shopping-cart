@@ -8,17 +8,12 @@ use Illuminate\Support\ServiceProvider;
 
 class ShoppingCartServiceProvider extends ServiceProvider
 {
-
-    /**
-     * Register the service provider.
-     *
-     * @return void
-     */
-    public function register()
+    public function register(): void
     {
         $this->app->bind('cart', 'JaworParkiet\ShoppingCart\Cart');
 
         $config = __DIR__ . '/../config/cart.php';
+
         $this->mergeConfigFrom($config, 'cart');
 
         $this->publishes([__DIR__ . '/../config/cart.php' => config_path('cart.php')], 'config');
@@ -30,7 +25,6 @@ class ShoppingCartServiceProvider extends ServiceProvider
         });
 
         if ( ! class_exists('CreateShoppingCartTable')) {
-            // Publish the migration
             $timestamp = date('Y_m_d_His', time());
 
             $this->publishes([

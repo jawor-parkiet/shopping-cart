@@ -415,7 +415,6 @@ The Cart package will throw exceptions if something goes wrong. This way it's ea
 
 | Exception                    | Reason                                                                             |
 | ---------------------------- | ---------------------------------------------------------------------------------- |
-| *CartAlreadyStoredException* | When trying to store a cart that was already stored using the specified identifier |
 | *InvalidRowIDException*      | When the rowId that got passed doesn't exists in the current cart instance         |
 | *UnknownModelException*      | When you try to associate an none existing model to a CartItem.                    |
 
